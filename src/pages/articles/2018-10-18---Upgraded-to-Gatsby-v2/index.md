@@ -1,5 +1,5 @@
 ---
-title: Upgraded to Gatsby v2
+title: hello world
 date: "2018-10-18T16:51:00.000Z"
 layout: post
 draft: false
@@ -8,7 +8,7 @@ category: "Gatsby"
 tags:
   - "Gatsby"
   - "Web Development"
-description: "This starter has been forked and upgraded to Gatsby v2"
+description: "测试下这个是怎么打包的"
 ---
 
 This is a Gatsby v2 compatible version of the
