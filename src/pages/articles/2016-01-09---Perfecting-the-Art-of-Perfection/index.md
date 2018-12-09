@@ -4,7 +4,7 @@ date: "2016-09-01T23:46:37.121Z"
 layout: post
 draft: false
 path: "/posts/perfecting-the-art-of-perfection/"
-category: "react看起来还不错"
+category: "测试下这个部署是不是这么6"
 tags:
   - "Handwriting"
   - "Learning to write"
