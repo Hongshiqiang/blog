@@ -6,7 +6,7 @@ module.exports = {
     url: 'https://hongshiqiang.live',
     title: 'Blog by Damon',
     subtitle:
-      '博客主要分享前端领域的文章(译文)',
+      '主要分享前端领域的文章',
     copyright: '© All rights reserved.',
     disqusShortname: '',
     menu: [
