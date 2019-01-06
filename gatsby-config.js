@@ -3,34 +3,31 @@ const pxtorem = require('postcss-pxtorem')
 
 module.exports = {
   siteMetadata: {
-    url: 'https://lumen.netlify.com',
-    title: 'Blog by John Doe',
+    url: 'https://hongshiqiang.live',
+    title: 'Blog by Damon',
     subtitle:
-      'Pellentesque odio nisi, euismod in, pharetra a, ultricies in, diam. Sed arcu.',
+      '博客主要分享前端领域的文章(译文)',
     copyright: '© All rights reserved.',
     disqusShortname: '',
     menu: [
       {
-        label: 'Articles',
+        label: '文章',
         path: '/',
       },
       {
-        label: 'About me',
+        label: '关于我',
         path: '/about/',
       },
       {
-        label: 'Contact me',
+        label: '联系我',
         path: '/contact/',
       },
     ],
     author: {
-      name: 'John Doe',
-      email: '#',
-      telegram: '#',
-      twitter: '#',
-      github: '#',
-      rss: '#',
-      vk: '#',
+      name: 'Damon',
+      email: '2550738257@qq.com',
+      twitter: 'ShiqiangHong',
+      github: 'Hongshiqiang',
     },
   },
   plugins: [
@@ -199,6 +196,24 @@ module.exports = {
           }),
         ],
         precision: 8,
+      },
+    },
+    {
+      resolve: `gatsby-plugin-favicon`,
+      options: {
+        logo: './src/favicon.png',
+        injectHTML: true,
+        icons: {
+          android: true,
+          appleIcon: true,
+          appleStartup: true,
+          coast: false,
+          favicons: true,
+          firefox: true,
+          twitter: false,
+          yandex: false,
+          windows: false,
+        },
       },
     },
   ],

@@ -17,7 +17,6 @@ class Sidebar extends React.Component {
     } = this.props.data.site.siteMetadata
     const isHomePage = get(location, 'pathname', '/') === '/'
 
-    /* eslint-disable jsx-a11y/img-redundant-alt */
     const authorBlock = (
       <div>
         <Link to="/">

@@ -1,5 +1,5 @@
 ---
-title: "Contact me"
+title: "联系我"
 layout: page
 path: "/contact"
 ---
