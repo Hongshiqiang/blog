@@ -5,6 +5,8 @@ layout: post
 draft: false
 path: "/posts/tasks-microtasks/"
 category: "Javascript (translation)"
+tags:
+  - "首页"
 
 description: "当我告诉我的同事Matt Gaunt我想写一篇关于微任务 队列和在浏览器事件循环中执行的文章时；  他说；我实话跟你说Jake我是不会去看的。 好吧；无论如何我已经写下来了；所以我们都要坐下来享受这篇文章； 好吗 ？"
 ---
