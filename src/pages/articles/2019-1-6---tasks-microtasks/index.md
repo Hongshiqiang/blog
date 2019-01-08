@@ -61,3 +61,33 @@ Microsofe Edge，Firefox 40，IOS Safari和桌面Safari 8.0.8在promise1和promi
 任务被放到任务源，这样浏览器就可以从内部访问Javascript/Dom，并确保这些操作按顺序进行。任务之间，浏览器可能会重新渲染，从鼠标点击事件到事件回调需要调度一个任务，解析HTML也是一样的，在上面的例子中setTimeout也一样。
 
 setTimeout等待给定的延迟，然后为其回调安排一个新的任务，这就是为什么setTimeout在script end之后打印，scripe end在第一个任务内，setTimeout被记录在单独的一个任务中，好了，我们快讲完了，但是我需要你为剩下这一点坚持下...
+
+微任务通常是为当前执行脚本结束后应该立即发生的事情，例如对一批动作作出反应，或者在不承担整个新任务的代价下进行异步，只要没有其他javascript在执行中，微任务队列就会在回调之后处理，在每个任务结束的时候。在微任务期间排队的任何其他微任务都被添加到队列的末尾并进行处理。微任务包括`mutation observer callbacks`，上面的例子中的`promise`的`callbacks`。
+
+一个settles状态的promise，或者已经变成settled状态，它会将callback放到微任务队列里。这确保promise的回调是异步的即使promise已经变成settled状态。因此对已settled状态的promise调用`.then()`会立即把一个微任务添加到微任务队列。这就是为什么`script end`结束后打印`promise1`和`promise2`，因为当前运行的脚本必须在处理微任务之前完成。在setTimeout之前打印promise1和promise2，因为微任务总是在下一个任务之前发生。
+
+okay 一步一步运行
+
+```javascript
+
+console.log('script start');
+
+setTimeout(function() {
+  console.log('setTimeout');
+}, 0);
+
+Promise.resolve().then(function() {
+  console.log('promise1');
+}).then(function() {
+  console.log('promise2');
+});
+
+```
+
+没错上面的解释是对的，我创建一个step-by-step动画图解(`这个原文有个动画可以一步一步点击运行js代码，可以点下方原文地址进行访问操作`)。你星期六过得怎么样？和你的朋友一起出去玩？我没有。(`反正我的休息日除了学习就是看电影`)如果我的UI设计不够清晰，点击上方箭头运行代码。
+
+##有些浏览器有什么不同之处？
+
+有些浏览器打印`script start`，`script end`，`setTimeout`，`promise1`，`promise2`。他们在setTimeout之后运行promise回调。很可能他们调用promise回调是作为新任务的一部分而不是作为微任务。
+
+这多少情有可原，
