@@ -90,4 +90,94 @@ Promise.resolve().then(function() {
 
 有些浏览器打印`script start`，`script end`，`setTimeout`，`promise1`，`promise2`。他们在setTimeout之后运行promise回调。很可能他们调用promise回调是作为新任务的一部分而不是作为微任务。
 
-这多少情有可原，
+这多少情有可原，因为promises来自ECMAScript而不是HTML。ECMAScript的工作原理类似于微任务，但除了邮件列表讨论含糊不清之外，这种关系并不明确。不管怎样，一般的共识是promises应该是微任务队列的一部分。这是有充分理由的。
+
+将promises作为任务会导致性能问题，由于回调函数可能会被任务相关的事例如渲染而延迟执行。与其他任务源交互时会产生不确定性，也会打断其他api的交互，不过稍后在细说。
+
+提交了一条Edge反馈，它将promises当作microtasks使用。WebKit每晚都在做正确的事情，所以我认为Safari最终会解决这个问题，Firefox43似乎已经修复这个问题了。
+
+有趣的是Safsri和Firefox都发生了退化，而之前版本是对的。我在想这是不是巧合。
+
+##怎么判断一个东西是使用任务还是微任务
+
+测试是一种方法。查看相对于promises和setTimeout如何打印，尽管你依赖于实现是否正确的。
+
+有一种确定的方式就是查阅规范。举个例子，将一个任务加入队列[step 14 of setTimeout](https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#timer-initialisation-steps)，将一个微任务加入队列[step 5 of queuing a mutation record](https://dom.spec.whatwg.org/#queue-a-mutation-record)
+
+如上所述，在ECMAScript里microtasks叫jobs，调用`EnqueueJob`将microtask添加到队列。[In step 8.a of PerformPromiseThen](http://www.ecma-international.org/ecma-262/6.0/#sec-performpromisethen)
+
+现在，让我们看一个更复杂的例子。一个有心的学徒，他们还没准备好，别管他们了，你已经准备好了，让我们做这个...
+
+##一级 boss对战
+
+在写这篇文章之前我烦了一个错误，这里有一些html:
+```html
+
+<div class="outer">
+  <div class="inner"></div>
+</div>
+
+```
+
+给出一下js，如果我点击`div.inner`会打印出什么呢？
+
+```javascript
+
+// Let's get hold of those elements
+var outer = document.querySelector('.outer');
+var inner = document.querySelector('.inner');
+
+// Let's listen for attribute changes on the
+// outer element
+new MutationObserver(function() {
+  console.log('mutate');
+}).observe(outer, {
+  attributes: true
+});
+
+// Here's a click listener…
+function onClick() {
+  console.log('click');
+
+  setTimeout(function() {
+    console.log('timeout');
+  }, 0);
+
+  Promise.resolve().then(function() {
+    console.log('promise');
+  });
+
+  outer.setAttribute('data-random', Math.random());
+}
+
+// …which we'll attach to both elements
+inner.addEventListener('click', onClick);
+outer.addEventListener('click', onClick);
+
+```
+
+继续，先试一试然后再看答案。提示：logs可能会发生多次。
+
+##测试
+
+点击内部方块触发点击事件
+
+和你猜想的有什么不同吗？如果是这样，你可能仍然是对的。不幸的是这里的浏览器并不一致
+
+![](./browsers.PNG)
+
+##谁是对的？
+
+触发点击事件是一个任务，Mutation observer和promise回调函数加入微任务队列。setTimeout回调函数加入任务队列。运行结果如下
+
+chrome是对的，有一点对于我来说是新发现微任务是在回调之后处理的(只要没有其他JavaScript在运行种)，我认为它仅限于任务结束。这条规则来自HTML规范用于调用回调
+
+...微任务检查点涉及到遍历微任务队列，除非我们已经在处理微任务队列。同样的，ECMAScript规范这么说：
+
+`Execution of a Job can be initiated only when there is no running execution context and the execution context stack is empty…                               — ECMAScript: Jobs and Job Queues`
+
+尽管"can be"在HTML上下文中变成了"must be"。
+
+##浏览器那里出错了？
+
+Firefox和Safari正确的在点击事件之间清空了微任务队列，如mutation回调，但promises的队列似乎有所不同。考虑到`jobs`和`microtasks`的联系是比较模糊的，这多少情有可原。但我仍然期待它们在监听回调之间执行。[Firefox ticket](https://bugzilla.mozilla.org/show_bug.cgi?id=1193394)。[Safari ticket](https://bugs.webkit.org/show_bug.cgi?id=147933)
