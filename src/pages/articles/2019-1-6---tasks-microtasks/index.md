@@ -234,3 +234,5 @@ inner.click();
 希望你现在已经了解了事件循环的方法，或者至少找个借口出去走一走 躺一躺。
 
 Actually, is anyone still reading ? hello? hello?
+
+[原文地址](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/)
