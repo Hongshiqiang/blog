@@ -110,7 +110,7 @@ Promise.resolve().then(function() {
 
 ##一级 boss对战
 
-在写这篇文章之前我烦了一个错误，这里有一些html:
+在写这篇文章之前我犯了一个错误，这里有一些html:
 ```html
 
 <div class="outer">
@@ -181,3 +181,56 @@ chrome是对的，有一点对于我来说是新发现微任务是在回调之�
 ##浏览器那里出错了？
 
 Firefox和Safari正确的在点击事件之间清空了微任务队列，如mutation回调，但promises的队列似乎有所不同。考虑到`jobs`和`microtasks`的联系是比较模糊的，这多少情有可原。但我仍然期待它们在监听回调之间执行。[Firefox ticket](https://bugzilla.mozilla.org/show_bug.cgi?id=1193394)。[Safari ticket](https://bugs.webkit.org/show_bug.cgi?id=147933)
+
+对于Edge我们已经看到它的promises队列是错误的，它也无法在点击事件之间清空微任务队列，而是在调用所有点击回调之后才清空，这就解释了在两次点击之后打印出单个mutate。[Bug ticket](https://connect.microsoft.com/IE/feedbackdetail/view/1658386/microtasks-queues-should-be-processed-following-event-listeners)
+
+##等级一打怪升级
+
+使用上面的例子，如果我们运行的话会发生什么
+
+```javascript
+
+inner.click();
+
+```
+
+跟之前一样会触发click事件，但是这是使用的代码而不是真正的交互。
+
+浏览器是这样说的：
+
+![](./browsers1.PNG)
+
+我发誓我从chrome种得到了不同的结果，我已经把这个图表更新无数次了我以为我是在错误的测试`Canary`。如果你在chrome得到不同的结果，在评论里告诉我是那个版本的。
+
+##为什么不同呢？
+
+以下介绍了是如何发生的：
+
+所以正确的顺序是：`click`，`click`，`promise`，`mutate`，`promise`，`timeout`，`timeout`，chrome似乎是对的。
+
+在每个listener callback被调用之后...
+
+以前，这意味着microtasks在listener callback之间运行，但是`click()`会导致事件的同步触发，因此调用`click()`的代码仍然在回调之间的堆栈中。上面的规则确保microtasks不中断正在执行过程中的Javascript。这意味着我们不会在listener callbacks中处理microtask队列，它们是在两个listeners之后处理的。
+
+##这些重要吗？
+
+重要，它会在你看不见的地方咬你(哎哟)。我在尝试为indexedDB创建一个简单的包装器库时遇到了这种情况，该库使用了promise而不是奇怪的IDBRequest的对象。它几乎使IDB使用起来很有趣。
+
+当IDB成功触发一个事件时，相关的事务对象在触发之后变成非激活状态。如果我创建一个promise在事件被触发时resolces，当事务仍在活动时，回调应该运行在步骤四之前，但这在chrome以外浏览器是不会发生的，导致这个库有点无用。
+
+实际上这个问题可以在Firefox上解决，因为promise polyfills比如es6-promise使用mutation observers执行回调，它正确地使用了微任务，Safari似乎因为这个修复而受到竞争条件的影响，但这可能只是它们对IDB的不完善实现。不幸的是，在IE/Edge不一致，因此mutation事件不在回调函数之后处理。
+
+希望我们很快就能在这里看到一些互通性。
+
+##你做到了！
+
+总结：
+
+    任务按顺序执行，浏览器可能在任务之间渲染
+    微任务按顺序执行，被执行的：
+      。每个回调之后，只要没有其他的代码在运行中
+      。每个任务的末尾
+
+希望你现在已经了解了事件循环的方法，或者至少找个借口出去走一走 躺一躺。
+
+Actually, is anyone still reading ? hello? hello?
