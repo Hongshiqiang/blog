@@ -164,7 +164,7 @@ outer.addEventListener('click', onClick);
 
 和你猜想的有什么不同吗？如果是这样，你可能仍然是对的。不幸的是这里的浏览器并不一致
 
-![](./browsers.PNG)
+![](/browsers.PNG)
 
 ##谁是对的？
 
@@ -198,7 +198,7 @@ inner.click();
 
 浏览器是这样说的：
 
-![](./browsers1.PNG)
+![](/browsers1.PNG)
 
 我发誓我从chrome种得到了不同的结果，我已经把这个图表更新无数次了我以为我是在错误的测试`Canary`。如果你在chrome得到不同的结果，在评论里告诉我是那个版本的。
 
