@@ -1,10 +1,10 @@
 ---
-title: 任务, 微任务, 队列和时间表测试
+title: 任务, 微任务, 队列和时间表
 date: "2019-1-6"
 layout: post
 draft: false
 path: "/posts/tasks-microtasks/"
-category: "Javascript (translation)"
+category: "Javascript"
 tags:
   - "首页"
 
