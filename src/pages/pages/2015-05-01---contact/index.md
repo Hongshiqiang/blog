@@ -6,7 +6,7 @@ path: "/contact"
 
 ##微信
 
-漂流瓶联系
+![](/wechat.jpg)
 
 ##邮箱
 
